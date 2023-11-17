@@ -22,6 +22,15 @@ public class DocumentServiceImpl implements DocumentService {
         this.documentsRepository = documentsRepository;
     }
 
+    private List<DocumentDto> toDto(){
+        List<Document> documents = documentsRepository.findAll();
+        List<DocumentDto> documentDtos = new ArrayList<>();
+        for (Document document : documents) {
+            documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                    document.getDate(), Status.of("NEW", "Новый")));
+        }
+        return documentDtos;
+    }
 
     public DocumentDto save(DocumentDto documentDto) {
         int n=0;
@@ -43,7 +52,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     public DocumentDto update(DocumentDto documentDto) {
-        List<DocumentDto> documentDtos = mapperFacade.mapAsList(documentsRepository.findAll(),DocumentDto.class);
+        List<DocumentDto> documentDtos = toDto();
         Optional<DocumentDto> dto = documentDtos.stream()
                 .filter(d -> d.getId().equals(documentDto.getId())).findFirst();
         if (dto.isPresent()) {
@@ -54,41 +63,21 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     public void delete(Long id) {
-        List<DocumentDto> documentDtos = mapperFacade.mapAsList(documentsRepository.findAll(),DocumentDto.class);
-        List<DocumentDto> newList = documentDtos.stream()
-                .filter(d -> !d.getId().equals(id)).collect(Collectors.toList());
-        documentDtos.clear();
-        documentDtos.addAll(newList);
+        documentsRepository.deleteById(id);
     }
 
     public void deleteAll(Set<Long> ids) {
-        List<DocumentDto> documentDtos = mapperFacade.mapAsList(documentsRepository.findAllById(ids), DocumentDto.class);
-        List<DocumentDto> newList = documentDtos.stream()
-                .filter(d -> !ids.contains(d.getId())).collect(Collectors.toList());
-        documentDtos.clear();
-        documentDtos.addAll(newList);
-    }
-
-    public List<DocumentDto> findAll() {
-        List<Document> documents = documentsRepository.findAll();
-
-        //List<DocumentDto> documentDtos = mapperFacade.mapAsList(documents,DocumentDto.class);
-        //return mapperFacade.mapAsList(documentsRepository.findAll(),DocumentDto.class);
-        if(documents.isEmpty()){
-            return mapperFacade.mapAsList(documents,DocumentDto.class);
-        }else {
-            List<DocumentDto> documentDtos = new ArrayList<>();
-            for (Document document : documents) {
-                documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
-                        document.getDate(), Status.of("NEW", "Новый")));
-            }
-            return documentDtos;
+        for (Long id:ids){
+            documentsRepository.deleteById(id);
         }
     }
 
+    public List<DocumentDto> findAll() {
+        return toDto();
+    }
+
     public DocumentDto get(Long id) {
-        List<DocumentDto> documentDtos = mapperFacade.mapAsList(documentsRepository.findAll(),DocumentDto.class);
-        return documentDtos.stream()
-                .filter(d -> d.getId().equals(id)).findFirst().orElseThrow(() -> new IllegalStateException("cannot find " + id));
+        Optional<Document> document=documentsRepository.findById(id);
+        return mapperFacade.map(document, DocumentDto.class);
     }
 }
