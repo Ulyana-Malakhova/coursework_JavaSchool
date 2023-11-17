@@ -9,10 +9,7 @@ import org.example.documents.entity.Document;
 import org.example.documents.repository.DocumentsRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +24,19 @@ public class DocumentServiceImpl implements DocumentService {
 
 
     public DocumentDto save(DocumentDto documentDto) {
+        int n=0;
         if (documentDto.getId() == null) {
             documentDto.setId(RandomUtils.nextLong(0L, 999L));
         }
         documentDto.setDate(new Date());
         if (documentDto.getStatus() == null) {
             documentDto.setStatus(Status.of("NEW", "Новый"));
+            n=1;
         }
         Document entityDocument = mapperFacade.map(documentDto,Document.class);
+        if(n==1) {
+            entityDocument.setState("Новый");
+        }
         Document document=documentsRepository.save(entityDocument);
         return documentDto;
     }
@@ -68,7 +70,20 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     public List<DocumentDto> findAll() {
-        return mapperFacade.mapAsList(documentsRepository.findAll(),DocumentDto.class);
+        List<Document> documents = documentsRepository.findAll();
+
+        //List<DocumentDto> documentDtos = mapperFacade.mapAsList(documents,DocumentDto.class);
+        //return mapperFacade.mapAsList(documentsRepository.findAll(),DocumentDto.class);
+        if(documents.isEmpty()){
+            return mapperFacade.mapAsList(documents,DocumentDto.class);
+        }else {
+            List<DocumentDto> documentDtos = new ArrayList<>();
+            for (Document document : documents) {
+                documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                        document.getDate(), Status.of("NEW", "Новый")));
+            }
+            return documentDtos;
+        }
     }
 
     public DocumentDto get(Long id) {
