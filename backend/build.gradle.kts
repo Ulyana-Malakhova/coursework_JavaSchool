@@ -23,6 +23,7 @@ dependencies {
     implementation("co.elastic.logging:logback-ecs-encoder:1.5.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("ma.glasnost.orika:orika-core:1.5.4")
     implementation("org.postgresql:postgresql:42.2.12")
 
