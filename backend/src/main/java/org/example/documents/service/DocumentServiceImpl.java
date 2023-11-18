@@ -8,6 +8,7 @@ import org.example.documents.controller.dto.Status;
 import org.example.documents.entity.Document;
 import org.example.documents.repository.DocumentsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class DocumentServiceImpl implements DocumentService {
         return documentDtos;
     }
 
+    @Transactional
     public DocumentDto save(DocumentDto documentDto) {
         int n=0;
         if (documentDto.getId() == null) {
@@ -50,34 +52,35 @@ public class DocumentServiceImpl implements DocumentService {
         return documentDto;
     }
 
-
+    @Transactional
     public DocumentDto update(DocumentDto documentDto) {
-        List<DocumentDto> documentDtos = toDto();
-        Optional<DocumentDto> dto = documentDtos.stream()
-                .filter(d -> d.getId().equals(documentDto.getId())).findFirst();
-        if (dto.isPresent()) {
-            delete(documentDto.getId());
-            save(documentDto);
-        }
+        Document entityDocument = mapperFacade.map(documentDto,Document.class);
+        documentsRepository.deleteById(documentDto.getId());
+        entityDocument.setState("В обработке");
+        documentsRepository.saveAndFlush(entityDocument);
         return documentDto;
     }
 
+    @Transactional
     public void delete(Long id) {
         documentsRepository.deleteById(id);
     }
 
+    @Transactional
     public void deleteAll(Set<Long> ids) {
         for (Long id:ids){
             documentsRepository.deleteById(id);
         }
     }
 
+    @Transactional
     public List<DocumentDto> findAll() {
         return toDto();
     }
 
+    @Transactional
     public DocumentDto get(Long id) {
-        Optional<Document> document=documentsRepository.findById(id);
+        Optional<Document> document= documentsRepository.findById(id);
         return mapperFacade.map(document, DocumentDto.class);
     }
 }

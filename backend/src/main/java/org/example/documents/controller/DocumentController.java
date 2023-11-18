@@ -1,5 +1,6 @@
 package org.example.documents.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.example.documents.controller.dto.DocumentDto;
 import org.example.documents.controller.dto.IdDto;
 import org.example.documents.controller.dto.IdsDto;
@@ -11,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/documents")
 public class DocumentController {
 
-    @Autowired
-    private DocumentService service;
+    private final DocumentService service;
 
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
