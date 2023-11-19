@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -27,8 +26,15 @@ public class DocumentServiceImpl implements DocumentService {
         List<Document> documents = documentsRepository.findAll();
         List<DocumentDto> documentDtos = new ArrayList<>();
         for (Document document : documents) {
-            documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
-                    document.getDate(), Status.of("NEW", "Новый")));
+            String state = document.getState();
+            if(state.equals("Новый")) {
+                documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                        document.getDate(), Status.of("NEW", "Новый")));
+            }
+            if(state.equals("В обработке")) {
+                documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                        document.getDate(), Status.of("IN_PROCESS", "В обработке")));
+            }
         }
         return documentDtos;
     }
@@ -54,10 +60,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Transactional
     public DocumentDto update(DocumentDto documentDto) {
-        Document entityDocument = mapperFacade.map(documentDto,Document.class);
-        documentsRepository.deleteById(documentDto.getId());
-        entityDocument.setState("В обработке");
-        documentsRepository.saveAndFlush(entityDocument);
+        documentsRepository.updateDocumentByIdAndState(documentDto.getId(), "В обработке");
         return documentDto;
     }
 
@@ -80,7 +83,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Transactional
     public DocumentDto get(Long id) {
-        Optional<Document> document= documentsRepository.findById(id);
+        Document document = documentsRepository.getOne(id);
         return mapperFacade.map(document, DocumentDto.class);
     }
 }
