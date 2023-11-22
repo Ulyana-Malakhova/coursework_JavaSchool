@@ -4,6 +4,21 @@ services:
     image: docker-java-jar
     ports:
       - '8888:8888'
+    depends_on:
+      - database
+    environment:
+      - SERVER_PORT= 8888
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database/postgres
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 30032003
+    ports:
+      - "5555:5432"
+    volumes:
+      - ./backend/src/main/resources/migrations/01.000.00/changelog-01.sql:/docker-entrypoint-initdb.d/changelog-01.sql
+    restart: unless-stopped
   ui:
     image: docker-react
     ports:
