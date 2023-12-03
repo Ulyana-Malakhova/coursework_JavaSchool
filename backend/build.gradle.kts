@@ -26,7 +26,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("ma.glasnost.orika:orika-core:1.5.4")
     implementation("org.postgresql:postgresql:42.2.12")
-
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.kafka:spring-kafka:2.5.1.RELEASE")
     liquibaseRuntime("org.liquibase:liquibase-core:3.8.1")
     liquibaseRuntime("org.liquibase:liquibase-groovy-dsl:2.1.1")
     liquibaseRuntime("ch.qos.logback:logback-classic:1.2.6")
@@ -42,6 +43,7 @@ dependencies {
 }
 
 tasks.test {
+    include("org/example/**")
     useJUnitPlatform()
 }
 
