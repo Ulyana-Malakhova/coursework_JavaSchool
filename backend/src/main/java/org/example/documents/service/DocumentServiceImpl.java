@@ -7,6 +7,7 @@ import org.example.documents.controller.dto.DocumentDto;
 import org.example.documents.controller.dto.Status;
 import org.example.documents.entity.Document;
 import org.example.documents.repository.DocumentsRepository;
+import org.example.kafka.KafkaSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +19,11 @@ public class DocumentServiceImpl implements DocumentService {
     private final MapperFacade mapperFacade = new DefaultMapperFactory.Builder()
             .build().getMapperFacade();
 
-    public DocumentServiceImpl(DocumentsRepository documentsRepository) {
+    private final KafkaSender kafkaSender;
+    public DocumentServiceImpl(DocumentsRepository documentsRepository, KafkaSender kafkaSender) {
         this.documentsRepository = documentsRepository;
+        this.kafkaSender = kafkaSender;
     }
-
     private List<DocumentDto> toDto(){
         List<Document> documents = documentsRepository.findAll();
         List<DocumentDto> documentDtos = new ArrayList<>();
@@ -34,6 +36,14 @@ public class DocumentServiceImpl implements DocumentService {
             if(state.equals("В обработке")) {
                 documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
                         document.getDate(), Status.of("IN_PROCESS", "В обработке")));
+            }
+            if(state.equals("Принят")) {
+                documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                        document.getDate(), Status.of("Accepted", "Принят")));
+            }
+            if(state.equals("Отклонен")) {
+                documentDtos.add(new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                        document.getDate(), Status.of("Declined", "Отклонен")));
             }
         }
         return documentDtos;
@@ -54,12 +64,13 @@ public class DocumentServiceImpl implements DocumentService {
         if(n==1) {
             entityDocument.setState("Новый");
         }
-        Document document=documentsRepository.save(entityDocument);
+        documentsRepository.save(entityDocument);
         return documentDto;
     }
 
     @Transactional
     public DocumentDto update(DocumentDto documentDto) {
+        kafkaSender.sendMessage(documentDto.toString());
         documentsRepository.updateDocumentByIdAndState(documentDto.getId(), "В обработке");
         return documentDto;
     }
@@ -84,6 +95,26 @@ public class DocumentServiceImpl implements DocumentService {
     @Transactional
     public DocumentDto get(Long id) {
         Document document = documentsRepository.getOne(id);
-        return mapperFacade.map(document, DocumentDto.class);
+        String state = document.getState();
+        DocumentDto documentDto=new DocumentDto(document.getId(), document.getType(), document.getOrganization(), document.getDescription(), document.getPatient(),
+                document.getDate(), Status.of("NEW", "Новый"));
+        if(state.equals("В обработке")) {
+            documentDto.setStatus(Status.of("IN_PROCESS", "В обработке"));
+        } else if (state.equals("Принят")){
+            documentDto.setStatus(Status.of("Accepted", "Принят"));
+        }else if (state.equals("Отклонен")){
+            documentDto.setStatus(Status.of("Declined", "Отклонен"));
+        }
+        return documentDto;
+    }
+
+    @Transactional
+    public DocumentDto updateFromKafka(DocumentDto documentDto,String status) {
+        if(status.equals("Принят")) {
+            documentsRepository.updateDocumentByIdAndState(documentDto.getId(), "Принят");
+        } else{
+            documentsRepository.updateDocumentByIdAndState(documentDto.getId(), "Отклонен");
+        }
+        return documentDto;
     }
 }

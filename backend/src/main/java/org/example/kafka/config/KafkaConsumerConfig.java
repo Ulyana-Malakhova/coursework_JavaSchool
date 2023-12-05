@@ -9,6 +9,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class KafkaConsumerConfig {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "127.0.0.1:29092");
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         config.put(
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class);
@@ -38,6 +40,7 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         ContainerProperties containerProperties = factory.getContainerProperties();
+        containerProperties.setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         containerProperties.setSyncCommits(true);
         containerProperties.setConsumerRebalanceListener(new ConsumerRebalanceListenerImpl());
         return factory;
