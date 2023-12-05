@@ -5,6 +5,9 @@ import org.apache.kafka.common.TopicPartition;
 
 import java.util.Collection;
 
+/**
+ * Класс перехватчик ребалансировки
+ */
 public class ConsumerRebalanceListenerImpl implements ConsumerRebalanceListener {
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {

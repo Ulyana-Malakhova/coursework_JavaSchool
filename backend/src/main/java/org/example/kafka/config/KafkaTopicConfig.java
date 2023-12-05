@@ -10,6 +10,9 @@ import org.springframework.kafka.core.KafkaAdmin;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Класс, создающий топики кафки
+ */
 @Configuration
 public class KafkaTopicConfig {
     @Value(value = "localhost:29092")
@@ -26,6 +29,7 @@ public class KafkaTopicConfig {
     public NewTopic topic1() {
         return new NewTopic("documents", 1, (short) 1);
     }
+
     @Bean
     public NewTopic topic2() {
         return new NewTopic("status", 1, (short) 1);

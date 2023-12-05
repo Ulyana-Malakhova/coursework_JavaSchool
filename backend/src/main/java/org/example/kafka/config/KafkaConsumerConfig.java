@@ -9,14 +9,21 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Класс конфигурации консюмера
+ */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
+    /**
+     * Метод для создания элемента класса, который содержит стратегии создания экземпляра потребителя
+     *
+     * @return - элемент фабрики потребителя
+     */
     public ConsumerFactory<String, String> consumerFactory() {
 
         Map<String, Object> config = new HashMap<>();
@@ -34,6 +41,11 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
+    /**
+     * Метод для создания элемента класса, который создает контейнеры для аннотированных методов KafkaListener
+     *
+     * @return - элемент  ConcurrentKafkaListenerContainerFactory
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =

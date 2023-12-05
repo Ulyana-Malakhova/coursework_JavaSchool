@@ -33,8 +33,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Класс с тестами методов класса DocumentController
+ */
 @SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class DocumentControllerTest {
     private static final String BASE_PATH = "/documents";
 
@@ -76,20 +79,20 @@ public class DocumentControllerTest {
 
     @Test
     public void getTest() throws Exception {
-        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L),"type","organization","description","patient",new Date(), Status.of("NEW","Новый"));
-        DocumentDto documentDto1 = new DocumentDto(RandomUtils.nextLong(0L, 999L),"type1","organization1","description1","patient1",new Date(), Status.of("NEW","Новый"));
+        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L), "type", "organization", "description", "patient", new Date(), Status.of("NEW", "Новый"));
+        DocumentDto documentDto1 = new DocumentDto(RandomUtils.nextLong(0L, 999L), "type1", "organization1", "description1", "patient1", new Date(), Status.of("NEW", "Новый"));
         service.save(documentDto);
         service.save(documentDto1);
-        Mockito.when(service.findAll()).thenReturn(Arrays.asList(documentDto1,documentDto));
+        Mockito.when(service.findAll()).thenReturn(Arrays.asList(documentDto1, documentDto));
         mockMvc.perform(get(BASE_PATH))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void sendTest() {
-        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L),"type","organization","description","patient",new Date(), Status.of("NEW","Новый"));
+        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L), "type", "organization", "description", "patient", new Date(), Status.of("NEW", "Новый"));
         service.save(documentDto);
-        when(service.update(documentDto)).thenAnswer(e->{
+        when(service.update(documentDto)).thenAnswer(e -> {
             documentDto.setStatus(Status.of("IN_PROCESS", "В обработке"));
             return documentDto;
         });
@@ -97,24 +100,24 @@ public class DocumentControllerTest {
 
     @Test
     public void deleteTest() throws Exception {
-        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L),"type","organization","description","patient",new Date(), Status.of("NEW","Новый"));
+        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L), "type", "organization", "description", "patient", new Date(), Status.of("NEW", "Новый"));
         service.save(documentDto);
         Mockito.when(service.get(Mockito.any())).thenReturn(documentDto);
         mockMvc.perform(
-                        delete("/documents/{id}",documentDto.getId()))
+                        delete("/documents/{id}", documentDto.getId()))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void deleteAllTest() throws Exception {
-        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L),"type","organization","description","patient",new Date(), Status.of("NEW","Новый"));
-        DocumentDto documentDto1 = new DocumentDto(RandomUtils.nextLong(0L, 999L),"type1","organization1","description1","patient1",new Date(), Status.of("NEW","Новый"));
+        DocumentDto documentDto = new DocumentDto(RandomUtils.nextLong(0L, 999L), "type", "organization", "description", "patient", new Date(), Status.of("NEW", "Новый"));
+        DocumentDto documentDto1 = new DocumentDto(RandomUtils.nextLong(0L, 999L), "type1", "organization1", "description1", "patient1", new Date(), Status.of("NEW", "Новый"));
         service.save(documentDto);
         service.save(documentDto1);
         Mockito.when(service.get(Mockito.any())).thenReturn(documentDto);
         Mockito.when(service.get(Mockito.any())).thenReturn(documentDto1);
         IdsDto dtoId = new IdsDto();
-        dtoId.setIds(Set.of(documentDto1.getId(),documentDto.getId()));
+        dtoId.setIds(Set.of(documentDto1.getId(), documentDto.getId()));
         mockMvc.perform(
                         delete(BASE_PATH)
                                 .contentType(APPLICATION_JSON)

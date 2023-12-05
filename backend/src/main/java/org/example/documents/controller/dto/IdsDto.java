@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.Set;
 
+/**
+ * Класс с набором идентификаторов
+ */
 @Data
 public class IdsDto {
 

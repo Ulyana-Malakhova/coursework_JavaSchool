@@ -1,7 +1,5 @@
 package org.example.documents.service;
 
-
-
 import org.example.documents.controller.dto.DocumentDto;
 
 import java.util.List;
@@ -13,6 +11,7 @@ import java.util.Set;
 public interface DocumentService {
     /**
      * Сохранить документ
+     *
      * @param documentDto документ
      * @return сохраненный документ
      */
@@ -20,18 +19,21 @@ public interface DocumentService {
 
     /**
      * Удалить документ
+     *
      * @param ids идентификаторы документов
      */
     void deleteAll(Set<Long> ids);
 
     /**
-     * Удалить документ по ид
+     * Удалить документ по id
+     *
      * @param id идентификатор документа
      */
     void delete(Long id);
 
     /**
      * Обновить документ
+     *
      * @param documentDto документ
      * @return обновленный документ
      */
@@ -39,12 +41,14 @@ public interface DocumentService {
 
     /**
      * Получить все документы
+     *
      * @return список документов
      */
     List<DocumentDto> findAll();
 
     /**
-     * Получить документ по номеру
+     * Получить документ по id
+     *
      * @param id идентификатор
      * @return документ
      */

@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+/**
+ * Класс dto
+ */
 @Data
 @Builder
 @NoArgsConstructor
